@@ -36,7 +36,7 @@ public class UnpooledDataSourceFactory implements DataSourceFactory {
 
   public UnpooledDataSourceFactory() {
     this.dataSource = new UnpooledDataSource();
-  }
+  }//郭：单例-懒汉式
 
   @Override
   public void setProperties(Properties properties) {

@@ -20,9 +20,9 @@ import org.apache.ibatis.reflection.MetaObject;
 /**
  * @author Clinton Begin
  */
-public interface ObjectWrapperFactory {
+public interface ObjectWrapperFactory {//包装对象生产工厂
 
-  boolean hasWrapperFor(Object object);
+  boolean hasWrapperFor(Object object);//判断是否可以生成该对象，如果可以返回true
 
   ObjectWrapper getWrapperFor(MetaObject metaObject, Object object);
 

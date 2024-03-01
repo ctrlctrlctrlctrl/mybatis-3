@@ -29,14 +29,15 @@ import org.apache.ibatis.reflection.wrapper.ObjectWrapperFactory;
 
 /**
  * @author Clinton Begin
+ * 本对象可以认为是一个保存了对象结构体，通过包装类对真实对象进行操作
  */
 public class MetaObject {
 
   private final Object originalObject;
-  private final ObjectWrapper objectWrapper;
-  private final ObjectFactory objectFactory;
-  private final ObjectWrapperFactory objectWrapperFactory;
-  private final ReflectorFactory reflectorFactory;
+  private final ObjectWrapper objectWrapper;//对象包装，因为对象的格式有多种多样，比如list、map、object。所以在调用构造方法的时候确认然后放入对应的包装类，本类的操作基本都是基于该对象进行操作
+  private final ObjectFactory objectFactory;//对象生产工厂
+  private final ObjectWrapperFactory objectWrapperFactory;//包装对象生产工厂
+  private final ReflectorFactory reflectorFactory;//反射工厂
 
   private MetaObject(Object object, ObjectFactory objectFactory, ObjectWrapperFactory objectWrapperFactory,
       ReflectorFactory reflectorFactory) {
@@ -45,40 +46,41 @@ public class MetaObject {
     this.objectWrapperFactory = objectWrapperFactory;
     this.reflectorFactory = reflectorFactory;
 
-    if (object instanceof ObjectWrapper) {
+    //这里的核心在于生成的过程当可以通过object进行生成包装类的时候一定要进行生产
+    if (object instanceof ObjectWrapper) {//当object为ObjectWrapper，则类变量ObjectWrapper设置为该object的强制类型
       this.objectWrapper = (ObjectWrapper) object;
-    } else if (objectWrapperFactory.hasWrapperFor(object)) {
+    } else if (objectWrapperFactory.hasWrapperFor(object)) {//当本方法的入参objectWrapperFactory是否可以生产object对象，如果可以使用改工厂进行生产一个包装对象
       this.objectWrapper = objectWrapperFactory.getWrapperFor(this, object);
-    } else if (object instanceof Map) {
+    } else if (object instanceof Map) {//略
       this.objectWrapper = new MapWrapper(this, (Map) object);
-    } else if (object instanceof Collection) {
+    } else if (object instanceof Collection) {//略
       this.objectWrapper = new CollectionWrapper(this, (Collection) object);
-    } else {
+    } else {//略
       this.objectWrapper = new BeanWrapper(this, object);
     }
   }
 
   public static MetaObject forObject(Object object, ObjectFactory objectFactory,
-      ObjectWrapperFactory objectWrapperFactory, ReflectorFactory reflectorFactory) {
-    if (object == null) {
+      ObjectWrapperFactory objectWrapperFactory, ReflectorFactory reflectorFactory) {//将一个对象生成本类的对象【相当于构造】
+    if (object == null) {//如果该参数为空则默认返回一个该语境下的空对象
       return SystemMetaObject.NULL_META_OBJECT;
     }
-    return new MetaObject(object, objectFactory, objectWrapperFactory, reflectorFactory);
+    return new MetaObject(object, objectFactory, objectWrapperFactory, reflectorFactory);//不为空则通过本类的构造方法返回一个元对象
   }
 
-  public ObjectFactory getObjectFactory() {
+  public ObjectFactory getObjectFactory() {//获得对象工厂
     return objectFactory;
   }
 
-  public ObjectWrapperFactory getObjectWrapperFactory() {
+  public ObjectWrapperFactory getObjectWrapperFactory() {//获得包装对象生产工厂
     return objectWrapperFactory;
   }
 
-  public ReflectorFactory getReflectorFactory() {
+  public ReflectorFactory getReflectorFactory() {//获得反射工厂
     return reflectorFactory;
   }
 
-  public Object getOriginalObject() {
+  public Object getOriginalObject() {//获得原始对象
     return originalObject;
   }
 
